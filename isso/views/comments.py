@@ -56,7 +56,7 @@ def isurl(text):
 
 def normalize(url):
     if not url.startswith(("http://", "https://")):
-        return "http://" + url
+        return f'http://{url}'
     return url
 
 
@@ -577,7 +577,7 @@ class API(object):
 
         try:
             rv = self.isso.unsign(key, max_age=2**32)
-        except (BadSignature, SignatureExpired):
+        except BadSignature:
             raise Forbidden
 
         if rv[0] != 'unsubscribe' or rv[1] != email:
@@ -645,7 +645,7 @@ class API(object):
     def moderate(self, environ, request, id, action, key):
         try:
             id = self.isso.unsign(key, max_age=2**32)
-        except (BadSignature, SignatureExpired):
+        except BadSignature:
             raise Forbidden
 
         item = self.comments.get(id)
@@ -807,11 +807,7 @@ class API(object):
 
         reply_counts = self.comments.reply_count(uri, after=args['after'])
 
-        if args['limit'] == 0:
-            root_list = []
-        else:
-            root_list = list(self.comments.fetch(**args))
-
+        root_list = [] if args['limit'] == 0 else list(self.comments.fetch(**args))
         if root_id not in reply_counts:
             reply_counts[root_id] = 0
 
@@ -833,16 +829,15 @@ class API(object):
             for comment in rv['replies']:
                 if comment['id'] in reply_counts:
                     comment['total_replies'] = reply_counts[comment['id']]
-                    if nested_limit is not None:
-                        if nested_limit > 0:
-                            args['parent'] = comment['id']
-                            args['limit'] = nested_limit
-                            replies = list(self.comments.fetch(**args))
-                        else:
-                            replies = []
-                    else:
+                    if nested_limit is None:
                         args['parent'] = comment['id']
                         replies = list(self.comments.fetch(**args))
+                    elif nested_limit > 0:
+                        args['parent'] = comment['id']
+                        args['limit'] = nested_limit
+                        replies = list(self.comments.fetch(**args))
+                    else:
+                        replies = []
                 else:
                     comment['total_replies'] = 0
                     replies = []
@@ -1108,9 +1103,7 @@ class API(object):
         return JSON({'text': self.isso.render(data["text"])}, 200)
 
     def demo(self, env, req):
-        return redirect(
-            get_current_url(env, strip_querystring=True) + '/index.html'
-        )
+        return redirect(f'{get_current_url(env, strip_querystring=True)}/index.html')
 
     def login(self, env, req):
         if not self.isso.conf.getboolean("admin", "enabled"):

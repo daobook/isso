@@ -34,9 +34,10 @@ def timedelta(string):
 
     keys = ["weeks", "days", "hours", "minutes", "seconds"]
     regex = "".join(["((?P<%s>\\d+)%s ?)?" % (k, k[0]) for k in keys])
-    kwargs = {}
-    for k, v in re.match(regex, string).groupdict(default="0").items():
-        kwargs[k] = int(v)
+    kwargs = {
+        k: int(v)
+        for k, v in re.match(regex, string).groupdict(default="0").items()
+    }
 
     rv = datetime.timedelta(**kwargs)
     if rv == datetime.timedelta():
@@ -119,8 +120,11 @@ def load(default, user=None):
 
     # return set of (section, option)
     def setify(cp):
-        return set((section, option) for section in cp.sections()
-                   for option in cp.options(section))
+        return {
+            (section, option)
+            for section in cp.sections()
+            for option in cp.options(section)
+        }
 
     parser = new()
     with open(default, 'r') as f:

@@ -51,8 +51,7 @@ class Dispatcher(DispatcherMiddleware):
         return resp(environ, start_response)
 
 
-settings = os.environ.get("ISSO_SETTINGS")
-if settings:
+if settings := os.environ.get("ISSO_SETTINGS"):
     if os.path.isdir(settings):
         conf_glob = os.path.join(settings, '*.cfg')
         confs = glob(conf_glob)

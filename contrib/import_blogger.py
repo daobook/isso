@@ -43,11 +43,7 @@ class Post:
 
 
 def encode_post(post):
-    ret = {}
-    ret['id'] = post.url
-    ret['title'] = post.title
-    ret['comments'] = post.comments
-    return ret
+    return {'id': post.url, 'title': post.title, 'comments': post.comments}
 
 
 class ImportBlogger:
@@ -93,10 +89,12 @@ class ImportBlogger:
         return post
 
     def process_comment(self, item):
-        comment = {}
-        comment['author'] = item.author_detail.name
-        comment['email'] = item.author_detail.email
-        comment['website'] = item.author_detail.get('href', '')
+        comment = {
+            'author': item.author_detail.name,
+            'email': item.author_detail.email,
+            'website': item.author_detail.get('href', ''),
+        }
+
         t = time.strftime('%Y-%m-%d %H:%M:%S', item.published_parsed)
         comment['created'] = t
         comment['text'] = item.content[0].value

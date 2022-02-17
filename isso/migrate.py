@@ -32,9 +32,7 @@ logger = logging.getLogger("isso")
 
 
 def strip(val):
-    if isinstance(val, (str, )):
-        return val.strip()
-    return val
+    return val.strip() if isinstance(val, (str, )) else val
 
 
 class Progress(object):
@@ -80,11 +78,10 @@ class Disqus(object):
     def insert(self, thread, posts):
 
         path = urlparse(thread.find('%slink' % Disqus.ns).text).path
-        remap = dict()
+        remap = {}
 
         if path not in self.db.threads:
-            self.db.threads.new(path, thread.find(
-                Disqus.ns + 'title').text.strip())
+            self.db.threads.new(path, thread.find(f'{Disqus.ns}title').text.strip())
 
         for item in sorted(posts, key=lambda k: k['created']):
 

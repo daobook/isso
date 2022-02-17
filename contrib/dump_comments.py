@@ -99,9 +99,7 @@ def print_comment(prefix, comment):
     email = comment.email or ''
     website = comment.website or ''
     when = date.fromtimestamp(comment.created)
-    popularity = ''
-    if comment.likes:
-        popularity = '+{.likes}'.format(comment)
+    popularity = '+{.likes}'.format(comment) if comment.likes else ''
     if comment.dislikes:
         if popularity:
             popularity += '/'

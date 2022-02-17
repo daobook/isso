@@ -13,7 +13,7 @@ except ImportError:
         from passlib.utils.pbkdf2 import pbkdf2 as _pbkdf2
 
         def pbkdf2(val, salt, iterations, dklen, func):
-            return _pbkdf2(val, salt, iterations, dklen, ("hmac-" + func).encode("utf-8"))
+            return _pbkdf2(val, salt, iterations, dklen, f'hmac-{func}'.encode("utf-8"))
     except ImportError:
         raise ImportError("No PBKDF2 implementation found. Either upgrade "
                           "to `werkzeug` 0.9 or install `passlib`.")

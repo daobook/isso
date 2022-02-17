@@ -117,10 +117,10 @@ class SMTP(object):
             uri = self.public_endpoint + "/id/%i" % comment["id"]
             key = self.isso.sign(comment["id"])
 
-            rv.write("Delete comment: %s\n" % (uri + "/delete/" + key))
+            rv.write("Delete comment: %s\n" % f'{uri}/delete/{key}')
 
             if comment["mode"] == 2:
-                rv.write("Activate comment: %s\n" % (uri + "/activate/" + key))
+                rv.write("Activate comment: %s\n" % f'{uri}/activate/{key}')
 
         else:
             uri = self.public_endpoint + "/id/%i" % parent_comment["id"]
@@ -187,7 +187,7 @@ class SMTP(object):
             con.sendmail(from_addr, to_addr, msg.as_string())
 
     def _retry(self, subject, body, to):
-        for x in range(5):
+        for _ in range(5):
             try:
                 self._sendmail(subject, body, to)
             except smtplib.SMTPConnectError:

@@ -61,7 +61,7 @@ def Markdown(extensions=("strikethrough", "superscript", "autolink",
         rv = md(text).rstrip("\n")
         if rv.startswith("<p>") or rv.endswith("</p>"):
             return rv
-        return "<p>" + rv + "</p>"
+        return f'<p>{rv}</p>'
 
     return inner
 

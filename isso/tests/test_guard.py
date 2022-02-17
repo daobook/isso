@@ -58,7 +58,7 @@ class TestGuard(unittest.TestCase):
 
         bob = self.makeClient("127.0.0.1", 2)
 
-        for i in range(2):
+        for _ in range(2):
             rv = bob.post('/new?uri=test', data=self.data)
             self.assertEqual(rv.status_code, 201)
 
@@ -68,7 +68,7 @@ class TestGuard(unittest.TestCase):
         self.assertIn("ratelimit exceeded", rv.get_data(as_text=True))
 
         alice = self.makeClient("1.2.3.4", 2)
-        for i in range(2):
+        for _ in range(2):
             self.assertEqual(alice.post(
                 "/new?uri=test", data=self.data).status_code, 201)
 

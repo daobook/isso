@@ -49,15 +49,12 @@ class curl(object):
 
             try:
                 resp = self.con.getresponse()
-                if resp.status == 301:
-                    location = resp.getheader('Location')
-                    if location:
-                        self.con.close()
-                        self.path = urlparse(location).path
-                    else:
-                        return None
-                else:
+                if resp.status != 301:
                     return resp
+                if not (location := resp.getheader('Location')):
+                    return None
+                self.con.close()
+                self.path = urlparse(location).path
             except (httplib.HTTPException, socket.timeout, socket.error):
                 return None
 

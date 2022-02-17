@@ -28,8 +28,6 @@ def anonymize(remote_addr):
     and /48 (zero'd).
 
     """
-    if not isinstance(remote_addr, str) and isinstance(remote_addr, str):
-        remote_addr = remote_addr.decode('ascii', 'ignore')
     try:
         ipv4 = ipaddress.IPv4Address(remote_addr)
         return u''.join(ipv4.exploded.rsplit('.', 1)[0]) + '.' + '0'

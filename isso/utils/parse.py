@@ -45,8 +45,7 @@ def thread(data, default=u"Untitled.", id=None):
             if child.nodeType == child.TEXT_NODE:
                 yield child.nodeValue
             if child.nodeType == child.ELEMENT_NODE:
-                for item in gettext(child):
-                    yield item
+                yield from gettext(child)
 
     try:
         id = unquote(el.attributes["data-isso-id"].value)

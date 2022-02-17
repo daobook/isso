@@ -120,11 +120,15 @@ class Comments:
         Update comment :param:`id` with values from :param:`data` and return
         updated comment.
         """
-        self.db.execute([
-            'UPDATE comments SET',
-            ','.join(key + '=' + '?' for key in data),
-            'WHERE id=?;'],
-            list(data.values()) + [id])
+        self.db.execute(
+            [
+                'UPDATE comments SET',
+                ','.join(f'{key}=?' for key in data),
+                'WHERE id=?;',
+            ],
+            list(data.values()) + [id],
+        )
+
 
         return self.get(id)
 
@@ -133,9 +137,9 @@ class Comments:
         Search for comment :param:`id` and return a mapping of :attr:`fields`
         and values.
         """
-        rv = self.db.execute(
-            'SELECT * FROM comments WHERE id=?', (id, )).fetchone()
-        if rv:
+        if rv := self.db.execute(
+            'SELECT * FROM comments WHERE id=?', (id,)
+        ).fetchone():
             return dict(zip(Comments.fields, rv))
 
         return None
@@ -158,14 +162,12 @@ class Comments:
                            'mode', 'remote_addr', 'text', 'author',
                            'email', 'website', 'likes', 'dislikes']
         fields_threads = ['uri', 'title']
-        sql_comments_fields = ', '.join(['comments.' + f
-                                         for f in fields_comments])
-        sql_threads_fields = ', '.join(['threads.' + f
-                                        for f in fields_threads])
-        sql = ['SELECT ' + sql_comments_fields + ', ' + sql_threads_fields + ' '
+        sql_comments_fields = ', '.join([f'comments.{f}' for f in fields_comments])
+        sql_threads_fields = ', '.join([f'threads.{f}' for f in fields_threads])
+        sql = [(f'SELECT {sql_comments_fields}, {sql_threads_fields}' + ' '
                'FROM comments INNER JOIN threads '
                'ON comments.tid=threads.id '
-               'WHERE comments.mode = ? ']
+               'WHERE comments.mode = ? ')]
         sql_args = [mode]
 
         if parent != 'any':
@@ -175,15 +177,14 @@ class Comments:
                 sql.append('AND comments.parent=?')
                 sql_args.append(parent)
 
+        sql.append('ORDER BY ')
         # custom sanitization
         if order_by not in ['id', 'created', 'modified', 'likes', 'dislikes', 'tid']:
-            sql.append('ORDER BY ')
             sql.append("comments.created")
             if not asc:
                 sql.append(' DESC')
         else:
-            sql.append('ORDER BY ')
-            sql.append('comments.' + order_by)
+            sql.append(f'comments.{order_by}')
             if not asc:
                 sql.append(' DESC')
             sql.append(", comments.created")
@@ -218,8 +219,7 @@ class Comments:
         # custom sanitization
         if order_by not in ['id', 'created', 'modified', 'likes', 'dislikes']:
             order_by = 'id'
-        sql.append('ORDER BY ')
-        sql.append(order_by)
+        sql.extend(('ORDER BY ', order_by))
         if not asc:
             sql.append(' DESC')
 

@@ -96,7 +96,7 @@ class TestComments(unittest.TestCase):
 
     def testCreateAndGetMultiple(self):
 
-        for i in range(20):
+        for _ in range(20):
             self.post('/new?uri=%2Fpath%2F', data=json.dumps({'text': 'Spam'}))
 
         r = self.get('/?uri=%2Fpath%2F')
@@ -172,7 +172,7 @@ class TestComments(unittest.TestCase):
 
     def testGetLimited(self):
 
-        for i in range(20):
+        for _ in range(20):
             self.post('/new?uri=test', data=json.dumps({'text': '...'}))
 
         r = self.get('/?uri=test&limit=10')
@@ -196,7 +196,7 @@ class TestComments(unittest.TestCase):
     def testGetLimitedNested(self):
 
         self.post('/new?uri=test', data=json.dumps({'text': '...'}))
-        for i in range(20):
+        for _ in range(20):
             self.post('/new?uri=test',
                       data=json.dumps({'text': '...', 'parent': 1}))
 
@@ -382,7 +382,7 @@ class TestComments(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(loads(rv.data), 1)
 
-        for x in range(3):
+        for _ in range(3):
             self.post('/new?uri=%2Fpath%2F', data=json.dumps({"text": "..."}))
 
         rv = self.get('/count?uri=%2Fpath%2F')
@@ -458,7 +458,7 @@ class TestComments(unittest.TestCase):
         for idx, post_id in enumerate([1, 2, 2, 1, 2, 1, 3, 1, 4, 2, 3, 4, 1, 2]):
             text = 'text-{}'.format(idx)
             post_uri = 'test-{}'.format(post_id)
-            self.post('/new?uri=' + post_uri, data=json.dumps({'text': text}))
+            self.post(f'/new?uri={post_uri}', data=json.dumps({'text': text}))
             saved.append((post_uri, text))
 
         response = self.get('/latest?limit=5')

@@ -224,8 +224,10 @@ def main():
     parser = ArgumentParser(description="a blog comment hosting service")
     subparser = parser.add_subparsers(help="commands", dest="command")
 
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s ' + dist.version)
+    parser.add_argument(
+        '--version', action='version', version=f'%(prog)s {dist.version}'
+    )
+
     parser.add_argument("-c", dest="conf", default="/etc/isso.conf",
                         metavar="/etc/isso.conf", help="set configuration file")
 

@@ -26,8 +26,7 @@ except pkg_resources.DistributionNotFound:
     dist = type("I'm a Version", (object, ), {})
     with io.open(join(dirname(__file__), "../setup.py")) as fp:
         for line in fp:
-            m = re.match("\\s*version='([^']+)'\\s*", line)
-            if m:
+            if m := re.match("\\s*version='([^']+)'\\s*", line):
                 dist.version = m.group(1)
                 break
         else:

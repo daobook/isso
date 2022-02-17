@@ -15,7 +15,7 @@ from werkzeug.wrappers import Request as _Request
 from werkzeug.datastructures import Headers
 
 
-def host(environ):  # pragma: no cover
+def host(environ):    # pragma: no cover
     """
     Reconstruct host from environment. A modified version
     of http://www.python.org/dev/peps/pep-0333/#url-reconstruction
@@ -28,13 +28,13 @@ def host(environ):  # pragma: no cover
     else:
         url += environ['SERVER_NAME']
 
-        if environ['wsgi.url_scheme'] == 'https':
-            if environ['SERVER_PORT'] != '443':
-                url += ':' + environ['SERVER_PORT']
-        else:
-            if environ['SERVER_PORT'] != '80':
-                url += ':' + environ['SERVER_PORT']
-
+        if (
+            environ['wsgi.url_scheme'] == 'https'
+            and environ['SERVER_PORT'] != '443'
+            or environ['wsgi.url_scheme'] != 'https'
+            and environ['SERVER_PORT'] != '80'
+        ):
+            url += ':' + environ['SERVER_PORT']
     return url + quote(environ.get('SCRIPT_NAME', ''))
 
 
@@ -47,7 +47,7 @@ def urlsplit(name):
         name = str(name)
 
     if not name.startswith(('http://', 'https://')):
-        name = 'http://' + name
+        name = f'http://{name}'
 
     rv = urlparse(name)
     if rv.scheme == 'https' and rv.port is None:
@@ -89,8 +89,7 @@ def origin(hosts):
         for split in hosts:
             if urlsplit(loc) == split:
                 return urljoin(*split)
-        else:
-            return urljoin(*hosts[0])
+        return urljoin(*hosts[0])
 
     return func
 
@@ -102,8 +101,7 @@ class SubURI(object):
 
     def __call__(self, environ, start_response):
 
-        script_name = environ.get('HTTP_X_SCRIPT_NAME')
-        if script_name:
+        if script_name := environ.get('HTTP_X_SCRIPT_NAME'):
             environ['SCRIPT_NAME'] = script_name
             path_info = environ['PATH_INFO']
             if path_info.startswith(script_name):
